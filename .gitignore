@@ -23,3 +23,11 @@ env/
 Thumbs.db
 .idea/
 .vscode/
+
+# ── Node / Next.js ──
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+.env.local
