@@ -14,6 +14,7 @@ const PAGINAS = [
   { href: "/exogenas", titulo: "Validador de Exógenas", icono: "📊" },
   { href: "/nomina", titulo: "Nómina y Prestaciones", icono: "💰" },
   { href: "/calendario", titulo: "Calendario Tributario", icono: "📅" },
+  { href: "/historial", titulo: "Historial (PostgreSQL)", icono: "🗂️" },
   { href: "/asistente", titulo: "Asistente IA", icono: "🤖" },
   { href: "/guia", titulo: "Guía Rápida", icono: "📖" },
 ];

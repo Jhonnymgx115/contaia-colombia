@@ -9,10 +9,14 @@
     "start": "next start",
     "test": "vitest run",
     "test:uno": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:up": "docker compose -f db/docker-compose.yml up -d",
+    "db:migrate": "prisma migrate dev"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.3",
     "next": "^15.3.3",
+    "prisma": "^6.19.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

@@ -1,0 +1,54 @@
+// Esquema de base de datos PostgreSQL de ContaIA Colombia (rama web).
+// Comandos: npx prisma generate · npx prisma migrate dev · npx prisma studio
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Historial de liquidaciones de renta calculadas (solo cifras, nunca datos
+// personales: el escudo anti-fuga aplica también a lo que se guarda).
+model LiquidacionRenta {
+  id                       String   @id @default(cuid())
+  anioGravable             Int
+  esPersonaNatural         Boolean
+  ingresosTotales          Float
+  ingresosNoConstitutivos  Float    @default(0)
+  costosYDeducciones       Float    @default(0)
+  rentasExentas            Float    @default(0)
+  rentaLiquidaGravable     Float
+  impuestoBasicoCop        Float
+  uvt                      Float
+  createdAt                DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// Cálculos de nómina guardados para conciliar.
+model CalculoNomina {
+  id               String   @id @default(cuid())
+  salarioMensual   Float
+  auxilioTransporte Float   @default(0)
+  diasTrabajados   Int
+  prima            Float
+  cesantias        Float
+  intereses        Float
+  totalPrestaciones Float
+  createdAt        DateTime @default(now())
+}
+
+// Bitácora de seguridad: qué tipo de datos detectó el escudo (sin el dato,
+// solo la categoría y la cantidad — trazabilidad de protección).
+model RegistroEscaneo {
+  id              String   @id @default(cuid())
+  categorias      String   // "Cédula / identificación: 2; Correo electrónico: 1"
+  totalProtegidos Int
+  destino         String   @default("ia")
+  createdAt       DateTime @default(now())
+
+  @@index([createdAt])
+}
