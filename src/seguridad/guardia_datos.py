@@ -101,9 +101,25 @@ _PATRONES = [
         _mascara_digitos,
     ),
     (
+        "Cuenta bancaria con etiqueta",
+        re.compile(
+            r"(?i)(?:cuenta\s+(?:de\s+)?(?:ahorros|corriente)|cuenta\s+bancaria|"
+            r"nequi|daviplata|bancolombia|davivienda|bbva|banco(?:lombia)?)\s*"
+            r"(?:n[úu]mero|nro|no\.?)?\s*[:=]?\s*\d{8,17}"
+        ),
+        "Números de cuenta o billetera digital con etiqueta en el texto.",
+        _mascara_digitos,
+    ),
+    (
         "NIT con dígito de verificación",
         re.compile(r"\b\d{3}\.?\d{3}\.?\d{3}-\d\b"),
         "NITs colombianos (formato con guión y DV).",
+        _mascara_digitos,
+    ),
+    (
+        "Documento con separador de miles",
+        re.compile(r"\b\d{1,3}(?:\.\d{3}){2,3}\b"),
+        "Números con separador de miles (cédulas o NITs escritos como 1.023.456.789).",
         _mascara_digitos,
     ),
     (
@@ -126,7 +142,12 @@ _PATRONES = [
     ),
     (
         "Dirección IP",
-        re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
+        # Octetos válidos 0-255 sin ceros a la izquierda, para no confundir
+        # cédulas escritas con puntos (1.023.456.789) con una IP.
+        re.compile(
+            r"\b(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}"
+            r"(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\b"
+        ),
         "Direcciones IP que podrían identificar equipos.",
         _mascara_total,
     ),

@@ -51,6 +51,26 @@ def test_bloqueo_con_enmascarado():
     assert "3101234567" not in informe.texto_seguro
 
 
+def test_detecta_cedula_con_puntos():
+    """Formato real de cédula escrita con puntos: 1.023.456.789."""
+    informe = escanear("El declarante cédula 1.023.456.789 no presentó renta.")
+    assert informe.hay_datos
+    assert "1.023.456.789" not in informe.texto_seguro
+    # No debe clasificarse como dirección IP.
+    assert not any("IP" in h.categoria for h in informe.hallazgos)
+
+
+def test_detecta_cuenta_bancaria_con_etiqueta():
+    informe = escanear("La consignación va a la cuenta de ahorros 12345678901.")
+    assert informe.hay_datos
+    assert "12345678901" not in informe.texto_seguro
+
+
+def test_ip_valida_sigue_detectandose():
+    informe = escanear("El servidor de la DIAN responde en 192.168.1.10.")
+    assert any("IP" in h.categoria for h in informe.hallazgos)
+
+
 def test_informe_resumen_legible():
     informe = escanear("cédula 1012345678 en el contrato")
     resumen = informe.resumen()
