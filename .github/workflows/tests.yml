@@ -2,12 +2,12 @@ name: Pruebas de ContaIA
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev, v0, web, desktop]
   pull_request:
-    branches: [main]
+    branches: [main, dev, v0, web, desktop]
 
 jobs:
-  pruebas:
+  python:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,7 +15,20 @@ jobs:
         with:
           python-version: "3.12"
       - name: Instalar dependencias
-        run: |
-          pip install -r requirements.txt pytest
-      - name: Ejecutar pruebas
+        run: pip install streamlit pandas openpyxl python-dotenv requests pytest
+      - name: Ejecutar pruebas Python (edición Streamlit)
         run: pytest tests/ -v
+
+  node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Verificación de tipos
+        run: npx tsc --noEmit
+      - name: Pruebas Vitest (edición web)
+        run: npx vitest run
