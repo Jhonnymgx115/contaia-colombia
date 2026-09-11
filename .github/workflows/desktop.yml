@@ -10,7 +10,13 @@ jobs:
   empaquetar:
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        include:
+          - os: windows-latest
+            target: --win nsis portable
+          - os: ubuntu-latest
+            target: --linux AppImage deb
+          - os: macos-latest
+            target: --mac dmg
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -23,8 +29,8 @@ jobs:
         run: npx vitest run
       - name: Build standalone de Next.js
         run: npm run build
-      - name: Empaquetar instalador
-        run: npx electron-builder --win nsis --linux AppImage --mac dmg
+      - name: Empaquetar instalador (${{ matrix.os }})
+        run: npx electron-builder ${{ matrix.target }}
       - uses: actions/upload-artifact@v4
         with:
           name: ContaIA-${{ matrix.os }}
