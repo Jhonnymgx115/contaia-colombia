@@ -1,0 +1,25 @@
+# ── Secretos y configuración personal ──
+.env
+*.key
+secrets*
+
+# ── Datos sensibles de usuarios (jamás subir) ──
+*.xlsx
+*.xls
+*.csv
+*.zip
+!docs/ejemplos/*.xlsx
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ── Sistema / editor ──
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
