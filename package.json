@@ -40,6 +40,9 @@
     "vitest": "^3.1.4"
   },
   "main": "electron/main.cjs",
-  "author": "ContaIA Colombia",
+  "author": {
+    "name": "ContaIA Colombia",
+    "email": "jorgeb@users.noreply.github.com"
+  },
   "postinstall": "prisma generate"
 }
