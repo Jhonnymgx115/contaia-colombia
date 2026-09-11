@@ -11,7 +11,10 @@
     "test:uno": "vitest run",
     "typecheck": "tsc --noEmit",
     "db:up": "docker compose -f db/docker-compose.yml up -d",
-    "db:migrate": "prisma migrate dev"
+    "db:migrate": "prisma migrate dev",
+    "db:local": "node scripts/db-local.mjs",
+    "seed:real": "tsx scripts/sembrar-datos-reales.mjs",
+    "backup:drive": "tsx scripts/respaldar-drive.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -25,8 +28,10 @@
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "autoprefixer": "^10.4.21",
+    "embedded-postgres": "^17.10.0-beta.17",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.23.13",
     "typescript": "^5.8.3",
     "vitest": "^3.1.4"
   }
