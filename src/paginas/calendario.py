@@ -7,7 +7,7 @@ import streamlit as st
 from src.datos.calendario import OBLIGACIONES, proximas
 
 
-def render():
+def pagina_calendario():
     st.title("📅 Calendario Tributario")
     st.markdown(
         "Las obligaciones colombianas llegan por temporadas. Aquí tiene las "

@@ -12,7 +12,7 @@ SUGERENCIAS = [
 ]
 
 
-def render():
+def pagina_asistente():
     st.title("🤖 Asistente IA Contable")
     st.markdown(
         "Pregúntele lo que quiera sobre normativa colombiana. Antes de que su "

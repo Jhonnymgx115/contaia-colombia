@@ -3,7 +3,7 @@
 import streamlit as st
 
 
-def render():
+def pagina_inicio():
     st.title("🇨🇴 ContaIA Colombia")
     st.markdown(
         """

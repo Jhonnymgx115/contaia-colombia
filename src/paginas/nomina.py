@@ -11,7 +11,7 @@ def _cop(valor: float) -> str:
     return f"${valor:,.0f}".replace(",", ".")
 
 
-def render():
+def pagina_nomina():
     st.title("💰 Nómina y Prestaciones")
     st.markdown(
         "Calcule **prima de servicios, cesantías e intereses a las cesantías** "

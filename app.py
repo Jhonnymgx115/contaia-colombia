@@ -23,13 +23,13 @@ st.set_page_config(
 )
 
 PAGINAS = [
-    st.Page(inicio.render, title="Inicio", icon="🏠", default=True),
-    st.Page(renta.render, title="Liquidador de Renta", icon="🧾"),
-    st.Page(exogenas.render, title="Validador de Exógenas", icon="📊"),
-    st.Page(nomina.render, title="Nómina y Prestaciones", icon="💰"),
-    st.Page(calendario.render, title="Calendario Tributario", icon="📅"),
-    st.Page(asistente.render, title="Asistente IA", icon="🤖"),
-    st.Page(guia.render, title="Guía Rápida", icon="📖"),
+    st.Page(inicio.pagina_inicio, title="Inicio", icon="🏠", default=True),
+    st.Page(renta.pagina_renta, title="Liquidador de Renta", icon="🧾", url_path="renta"),
+    st.Page(exogenas.pagina_exogenas, title="Validador de Exógenas", icon="📊", url_path="exogenas"),
+    st.Page(nomina.pagina_nomina, title="Nómina y Prestaciones", icon="💰", url_path="nomina"),
+    st.Page(calendario.pagina_calendario, title="Calendario Tributario", icon="📅", url_path="calendario"),
+    st.Page(asistente.pagina_asistente, title="Asistente IA", icon="🤖", url_path="asistente"),
+    st.Page(guia.pagina_guia, title="Guía Rápida", icon="📖", url_path="guia"),
 ]
 
 with st.sidebar:

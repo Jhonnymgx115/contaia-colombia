@@ -3,7 +3,7 @@
 import streamlit as st
 
 
-def render():
+def pagina_guia():
     st.title("📖 Guía Rápida")
     st.markdown(
         "Todo lo que necesita saber para usar ContaIA Colombia, sin tecnicismos "

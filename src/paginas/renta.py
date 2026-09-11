@@ -11,7 +11,7 @@ def _cop(valor: float) -> str:
     return f"${valor:,.0f}".replace(",", ".")
 
 
-def render():
+def pagina_renta():
     st.title("🧾 Liquidador de Renta")
     st.markdown(
         "Llene los campos con las cifras del año gravable (están en su PUC, "

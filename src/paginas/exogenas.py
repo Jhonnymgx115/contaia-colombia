@@ -15,7 +15,7 @@ def _leer_archivo(archivo):
     return pd.read_csv(archivo, sep=None, engine="python", encoding="utf-8-sig")
 
 
-def render():
+def pagina_exogenas():
     st.title("📊 Validador de Exógenas")
     st.markdown(
         "Suba su archivo de medios magnéticos (**CSV o Excel**) y la "
