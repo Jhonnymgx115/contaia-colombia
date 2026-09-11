@@ -40,9 +40,13 @@ se protegió y puede inspeccionar la versión enmascarada exacta que se envió.
 
 ## Limitaciones conocidas
 
+- **Números de documento "sueltos":** si el usuario pega listas de cédulas sin
+  ninguna etiqueta ni formato (p. ej. `1023456789, 79876543`), el escudo no
+  puede distinguirlas de montos o fechas y por ahora **no las enmascara**.
+  Ver issue correspondiente en GitHub. Mientras tanto, la guía al usuario es
+  clara: no pegue bases de datos completas de clientes.
 - El detector es heurístico (patrones), no perfecto: un dato escrito de forma
-  inusual podría no detectarse. La guía al usuario es clara: no pegar bases de
-  datos completas de clientes.
+  inusual podría no detectarse.
 - El enmascaramiento altera la pregunta original; el usuario decide si
   envía la versión segura o descarta el envío.
 
