@@ -1,8 +1,10 @@
-// Ruta de API del Asistente IA — SIEMPRE pasa la pregunta por el escudo
-// anti-fuga antes de enviarla al proveedor externo.
+// API del Asistente IA — multi-proveedor (Gemini, DeepSeek, OpenAI, Claude).
+// Regla inquebrantable: NINGUNA pregunta sale sin pasar por el escudo
+// anti-fuga; solo viaja la versión enmascarada.
 
 import { NextResponse } from "next/server";
 import { escanear } from "@/lib/seguridad/guardia";
+import { preguntarProveedor, proveedoresDisponibles, PROVEEDORES } from "@/lib/ia/proveedores";
 
 const SISTEMA_PROMPT = `Eres un asistente contable y tributario experto en la normativa colombiana:
 Estatuto Tributario, normatividad DIAN, NIIF y Código Sustantivo del Trabajo.
@@ -10,75 +12,90 @@ Respondes en español claro y didáctico para contadores, citas la norma cuando 
 conoces y adviertes cuando una cifra puede cambiar según resoluciones vigentes.
 Nunca inventas artículos ni valores. No ofreces asesoría legal formal.`;
 
+// Lista de proveedores y su disponibilidad (para el selector de la interfaz).
+export async function GET() {
+  const disponibles = proveedoresDisponibles();
+  return NextResponse.json({
+    proveedores: PROVEEDORES.map((p) => ({
+      id: p.id,
+      nombre: p.nombre,
+      web: p.web,
+      disponible: disponibles.some((d) => d.id === p.id),
+    })),
+  });
+}
+
 export async function POST(request: Request) {
-  const { pregunta } = (await request.json()) as { pregunta?: string };
+  const { pregunta, proveedor: proveedorSolicitado } = (await request.json()) as {
+    pregunta?: string;
+    proveedor?: string;
+  };
   if (!pregunta?.trim()) {
     return NextResponse.json({ estado: "error", respuesta: "Pregunta vacía." }, { status: 400 });
   }
 
   const informe = escanear(pregunta);
   const preguntaSegura = informe.hayDatos ? informe.textoSeguro : pregunta;
+  const informePublico = {
+    textoSeguro: informe.textoSeguro,
+    resumen: informe.resumen,
+    hayDatos: informe.hayDatos,
+  };
 
-  const clave = process.env.IA_API_KEY;
-  const proveedor = (process.env.IA_PROVEEDOR ?? "openai").toLowerCase();
-
-  if (!clave) {
+  const disponibles = proveedoresDisponibles();
+  if (disponibles.length === 0) {
     return NextResponse.json({
       estado: "sin_configuracion",
       respuesta:
-        "El asistente IA no está activado: falta la clave de API (variable IA_API_KEY en .env.local). " +
+        "El asistente IA no está activado: configure la clave de al menos un proveedor " +
+        "(variables GEMINI_API_KEY, DEEPSEEK_API_KEY, OPENAI_API_KEY o ANTHROPIC_API_KEY). " +
         "Los demás módulos funcionan sin conexión.",
-      informe: { textoSeguro: informe.textoSeguro, resumen: informe.resumen, hayDatos: informe.hayDatos },
+      informe: informePublico,
     });
   }
 
-  try {
-    let texto: string;
-    if (proveedor === "anthropic") {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "x-api-key": clave,
-          "anthropic-version": "2023-06-01",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: process.env.IA_MODELO ?? "claude-3-5-haiku-20241022",
-          max_tokens: 1024,
-          system: SISTEMA_PROMPT,
-          messages: [{ role: "user", content: preguntaSegura }],
-        }),
-      });
-      if (!res.ok) throw new Error(`Anthropic respondió ${res.status}`);
-      const data = await res.json();
-      texto = data.content[0].text;
-    } else {
-      const res = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${clave}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: process.env.IA_MODELO ?? "gpt-4o-mini",
-          messages: [
-            { role: "system", content: SISTEMA_PROMPT },
-            { role: "user", content: preguntaSegura },
-          ],
-        }),
-      });
-      if (!res.ok) throw new Error(`OpenAI respondió ${res.status}`);
-      const data = await res.json();
-      texto = data.choices[0].message.content;
-    }
+  // Usa el proveedor pedido si está disponible; si no, el primero configurado.
+  const elegido =
+    disponibles.find((p) => p.id === proveedorSolicitado) ?? disponibles[0];
 
+  try {
+    const { respuesta, proveedor } = await preguntarProveedor(
+      elegido.id,
+      preguntaSegura,
+      SISTEMA_PROMPT,
+    );
     return NextResponse.json({
       estado: "ok",
-      respuesta: texto,
-      informe: { textoSeguro: informe.textoSeguro, resumen: informe.resumen, hayDatos: informe.hayDatos },
+      respuesta,
+      proveedorUsado: proveedor.nombre,
+      informe: informePublico,
     });
   } catch (e) {
+    // Si el proveedor pedido falla, prueba con otro disponible.
+    const alternativos = disponibles.filter((p) => p.id !== elegido.id);
+    for (const alt of alternativos) {
+      try {
+        const { respuesta, proveedor } = await preguntarProveedor(
+          alt.id,
+          preguntaSegura,
+          SISTEMA_PROMPT,
+        );
+        return NextResponse.json({
+          estado: "ok",
+          respuesta,
+          proveedorUsado: `${proveedor.nombre} (respaldo: ${elegido.nombre} falló)`,
+          informe: informePublico,
+        });
+      } catch {
+        continue;
+      }
+    }
     return NextResponse.json({
       estado: "error",
-      respuesta: `No se pudo contactar el servicio de IA: ${e instanceof Error ? e.message : e}`,
-      informe: { textoSeguro: informe.textoSeguro, resumen: informe.resumen, hayDatos: informe.hayDatos },
+      respuesta: `No se pudo contactar ningún proveedor de IA. Último error: ${
+        e instanceof Error ? e.message : e
+      }`,
+      informe: informePublico,
     });
   }
 }
