@@ -25,6 +25,8 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
+      - name: Generar cliente Prisma
+        run: npx prisma generate
       - name: Pruebas unitarias
         run: npx vitest run
       - name: Build standalone de Next.js
