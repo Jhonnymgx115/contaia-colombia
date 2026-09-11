@@ -11,11 +11,20 @@
     "test:uno": "vitest run",
     "typecheck": "tsc --noEmit",
     "db:up": "docker compose -f db/docker-compose.yml up -d",
-    "db:migrate": "prisma migrate dev"
+    "db:migrate": "prisma migrate dev",
+    "electron:dev": "next build && electron .",
+    "dist:linux": "next build && electron-builder --linux AppImage deb",
+    "dist:win": "next build && electron-builder --win nsis portable",
+    "dist:mac": "next build && electron-builder --mac dmg",
+    "dist:all": "next build && electron-builder --win nsis --linux AppImage --mac dmg"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8",
+    "embedded-postgres": "^17.10.0-beta.17",
     "next": "^15.3.3",
+    "pg": "^8.23.0",
     "prisma": "^6.19.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
@@ -29,5 +38,6 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",
     "vitest": "^3.1.4"
-  }
+  },
+  "main": "electron/main.cjs"
 }

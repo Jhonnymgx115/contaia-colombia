@@ -1,0 +1,35 @@
+name: Empaquetado de escritorio (Windows / Linux / macOS)
+
+on:
+  push:
+    branches: [desktop]
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  empaquetar:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Pruebas unitarias
+        run: npx vitest run
+      - name: Build standalone de Next.js
+        run: npm run build
+      - name: Empaquetar instalador
+        run: npx electron-builder --win nsis --linux AppImage --mac dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ContaIA-${{ matrix.os }}
+          path: |
+            dist-empaquetado/*.exe
+            dist-empaquetado/*.AppImage
+            dist-empaquetado/*.deb
+            dist-empaquetado/*.dmg

@@ -1,0 +1,38 @@
+appId: co.contaia.app
+productName: ContaIA Colombia
+copyright: Copyright © 2026 ContaIA Colombia
+
+directories:
+  output: dist-empaquetado
+  buildResources: electron/recursos
+
+files:
+  - electron/**/*
+  - package.json
+  - node_modules/**/*
+
+extraResources:
+  # El build standalone de Next.js se copia a los recursos de la app.
+  - from: .next/standalone
+    to: app-standalone
+    filter: ["**/*"]
+  - from: .next/static
+    to: app-standalone/.next/static
+    filter: ["**/*"]
+  - from: public
+    to: app-standalone/public
+    filter: ["**/*"]
+
+win:
+  target: [nsis, portable]
+linux:
+  target: [AppImage, deb]
+  category: Office
+mac:
+  target: [dmg]
+  category: public.app-category.business
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  artifactName: ContaIA-Colombia-Setup-${version}.${ext}
