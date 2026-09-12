@@ -31,3 +31,5 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 .env.local
+.db-local/
+scripts/google-service-account.json

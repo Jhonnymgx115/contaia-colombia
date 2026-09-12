@@ -4,6 +4,7 @@ import { useState } from "react";
 import { aniosDisponibles, UVT_POR_ANIO } from "@/lib/datos/uvt";
 import { liquidar, cop, type ResultadoLiquidacion } from "@/lib/herramientas/renta";
 import { TRAMOS_ART_241 } from "@/lib/datos/tarifas";
+import { exportarXlsx } from "@/lib/herramientas/planillas";
 
 const PASOS = [
   ["1", "Ingresos totales", "Todo lo que recibió en el año (ventas, honorarios, salarios)."],
@@ -36,6 +37,26 @@ export default function RentaPage() {
         ingresosLaborales: esNatural ? ingresos : null,
       }),
     );
+  };
+
+  const exportar = () => {
+    if (!resultado) return;
+    const contenido = exportarXlsx([
+      {
+        nombre: "Liquidación",
+        columnas: [
+          { titulo: "Concepto", valores: ["Año gravable", "UVT (COP)", "Ingresos totales", "Ingresos no constitutivos", "Ingresos netos", "Costos y deducciones", "Renta líquida", "Rentas exentas", "Renta líquida gravable", "Base (UVT)", "IMPUESTO BÁSICO (COP)"] },
+          { titulo: "Valor", valores: [resultado.anioGravable, resultado.uvt, resultado.ingresosTotales, resultado.ingresosNoConstitutivos, resultado.ingresosNetos, resultado.costosYDeducciones, resultado.rentaLiquida, resultado.rentasExentas, resultado.rentaLiquidaGravable, Math.round(resultado.baseUvt * 100) / 100, Math.round(resultado.impuestoBasicoCop)] },
+        ],
+      },
+    ]);
+    const blob = new Blob([contenido.buffer as ArrayBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const url = URL.createObjectURL(blob);
+    const enlace = document.createElement("a");
+    enlace.href = url;
+    enlace.download = `liquidacion-renta-${resultado.anioGravable}.xlsx`;
+    enlace.click();
+    URL.revokeObjectURL(url);
   };
 
   const input = "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm";
@@ -125,7 +146,13 @@ export default function RentaPage() {
                   ))}
                 </tbody>
               </table>
-              {resultado.notas.map((n, i) => (
+              {resultado && (
+            <button onClick={exportar}
+              className="mt-3 w-full rounded-lg border border-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50">
+              ⬇️ Exportar a Excel (.xlsx) — compatible con LibreOffice
+            </button>
+          )}
+          {resultado.notas.map((n, i) => (
                 <p key={i} className="mt-2 rounded-lg bg-sky-50 p-2 text-xs text-sky-800">ℹ️ {n}</p>
               ))}
               <details className="mt-3 text-sm">

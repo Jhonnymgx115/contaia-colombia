@@ -7,6 +7,7 @@ import {
   validarExogenas,
   type InformeExogenas,
 } from "@/lib/herramientas/exogenas";
+import { leerPlanilla, extensionesSoportadas } from "@/lib/herramientas/planillas";
 
 export default function ExogenasPage() {
   const [formato, setFormato] = useState("1003");
@@ -19,12 +20,26 @@ export default function ExogenasPage() {
   const alCargar = async (archivo: File) => {
     setError(null);
     try {
-      const texto = await archivo.text();
-      const { encabezados, filas } = parsearCsv(texto);
+      let encabezados: string[];
+      let filas: unknown[][];
+      if (archivo.name.toLowerCase().endsWith(".csv")) {
+        const parsed = parsearCsv(await archivo.text());
+        encabezados = parsed.encabezados;
+        filas = parsed.filas;
+      } else {
+        // .xlsx (Excel), .xls (Excel antiguo) y .ods (LibreOffice Calc)
+        const hoja = await leerPlanilla(archivo);
+        encabezados = hoja.encabezados;
+        filas = hoja.filas;
+      }
       setInforme(validarExogenas(encabezados, filas, formato));
       setVista(filas.slice(0, 10));
-    } catch {
-      setError("No pudimos leer el archivo. Verifique que sea un CSV válido.");
+    } catch (e) {
+      setError(
+        e instanceof Error
+          ? e.message
+          : "No pudimos leer el archivo. Verifique el formato e intente de nuevo.",
+      );
     }
   };
 
@@ -47,9 +62,12 @@ export default function ExogenasPage() {
           <option value="1003">Formato 1003 — Personas naturales</option>
           <option value="1004">Formato 1004 — Personas jurídicas</option>
         </select>
-        <input type="file" accept=".csv,text/csv" className="text-sm"
+        <input type="file" accept=".xlsx,.xls,.ods,.csv" className="text-sm"
           onChange={(e) => e.target.files?.[0] && alCargar(e.target.files[0])} />
       </div>
+      <p className="mt-1 text-xs text-slate-400">
+        Formatos aceptados: {extensionesSoportadas().map((e) => `.${e}`).join(" · ")} — Excel, LibreOffice Calc y CSV. El archivo se lee en su navegador.
+      </p>
 
       {error && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
 

@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { escanear, type InformeEscaneo } from "@/lib/seguridad/guardia";
 
 type Respuesta = {
   estado: "ok" | "sin_configuracion" | "bloqueado" | "error";
   respuesta: string;
+  proveedorUsado?: string;
   informe: { textoSeguro: string; resumen: string; hayDatos: boolean };
 };
+
+type ProveedorUI = { id: string; nombre: string; web: string; disponible: boolean };
 
 const SUGERENCIAS = [
   "Explícame con un ejemplo qué son los ingresos no constitutivos de renta del artículo 45 ET.",
@@ -17,9 +20,18 @@ const SUGERENCIAS = [
 
 export default function AsistentePage() {
   const [pregunta, setPregunta] = useState("");
+  const [proveedor, setProveedor] = useState("gemini");
+  const [proveedores, setProveedores] = useState<ProveedorUI[]>([]);
   const [cargando, setCargando] = useState(false);
   const [respuesta, setRespuesta] = useState<Respuesta | null>(null);
   const [escaneoLocal, setEscaneoLocal] = useState<InformeEscaneo | null>(null);
+
+  useEffect(() => {
+    fetch("/api/asistente")
+      .then((r) => r.json())
+      .then((d) => setProveedores(d.proveedores ?? []))
+      .catch(() => {});
+  }, []);
 
   const enviar = async () => {
     if (!pregunta.trim()) return;
@@ -30,7 +42,7 @@ export default function AsistentePage() {
       const res = await fetch("/api/asistente", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pregunta }),
+        body: JSON.stringify({ pregunta, proveedor }),
       });
       setRespuesta(await res.json());
     } catch {
@@ -50,6 +62,24 @@ export default function AsistentePage() {
         Antes de que su texto viaje a la IA, el <strong>escudo anti-fuga</strong> revisa y oculta
         automáticamente cédulas, NITs, tarjetas, cuentas, correos, teléfonos y claves.
       </p>
+
+      <div className="mt-4">
+        <label className="block text-sm font-medium text-slate-600">Proveedor de IA</label>
+        <select
+          className="mt-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          value={proveedor}
+          onChange={(e) => setProveedor(e.target.value)}
+        >
+          {(proveedores.length ? proveedores : [{ id: "gemini", nombre: "Google Gemini", web: "", disponible: false }]).map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.nombre}{p.disponible ? "" : " (sin clave)"}
+            </option>
+          ))}
+        </select>
+        <p className="mt-1 text-xs text-slate-400">
+          Si el proveedor elegido falla, se usa automáticamente otro configurado como respaldo.
+        </p>
+      </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
         {SUGERENCIAS.map((s) => (
@@ -82,9 +112,11 @@ export default function AsistentePage() {
         </div>
       )}
 
-      {respuesta && (
+        {respuesta && (
         <div className="mt-4 rounded-xl border border-slate-200 bg-white p-5">
-          <h3 className="font-semibold">🤖 Respuesta</h3>
+          <h3 className="font-semibold">
+            🤖 Respuesta{respuesta.proveedorUsado ? ` — vía ${respuesta.proveedorUsado}` : ""}
+          </h3>
           <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700">{respuesta.respuesta}</p>
         </div>
       )}
