@@ -13,7 +13,7 @@ export type ProveedorInfo = {
 };
 
 export const PROVEEDORES: ProveedorInfo[] = [
-  { id: "gemini", nombre: "Google Gemini", variableClave: "GEMINI_API_KEY", modeloPorDefecto: "gemini-2.0-flash", web: "aistudio.google.com" },
+  { id: "gemini", nombre: "Google Gemini", variableClave: "GEMINI_API_KEY", modeloPorDefecto: "gemini-3.6-flash", web: "aistudio.google.com" },
   { id: "deepseek", nombre: "DeepSeek", variableClave: "DEEPSEEK_API_KEY", modeloPorDefecto: "deepseek-chat", web: "platform.deepseek.com" },
   { id: "openai", nombre: "OpenAI", variableClave: "OPENAI_API_KEY", modeloPorDefecto: "gpt-4o-mini", web: "platform.openai.com" },
   { id: "anthropic", nombre: "Anthropic Claude", variableClave: "ANTHROPIC_API_KEY", modeloPorDefecto: "claude-3-5-haiku-20241022", web: "console.anthropic.com" },
