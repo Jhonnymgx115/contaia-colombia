@@ -61,9 +61,15 @@ jobs:
       - name: Empaquetar instalador (${{ matrix.os }})
         run: npx electron-builder ${{ matrix.target }} --publish never
       # Descarga pública: en tags, los instaladores se adjuntan al Release.
+      # (find evita subir carpetas intermedias como mac-arm64/ que deja
+      # electron-builder dentro de dist-empaquetado/)
       - name: Publicar instaladores en el Release
         if: startsWith(github.ref, 'refs/tags/v')
-        run: gh release upload "$GITHUB_REF_NAME" dist-empaquetado/* --clobber
+        shell: bash
+        run: |
+          find dist-empaquetado -maxdepth 1 -type f \
+            \( -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" \) \
+            -print0 | xargs -0 gh release upload "$GITHUB_REF_NAME" --clobber
         env:
           GH_TOKEN: ${{ github.token }}
       # En pushes normales a la rama, quedan como artifacts de CI (90 días).
