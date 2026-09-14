@@ -46,3 +46,19 @@ Los instaladores salen en `dist-empaquetado/`.
 - **Todo corre local**: ni la base de datos ni la interfaz salen del equipo.
 - La base se inicializa sola (SQL idempotente en `electron/servicios.cjs`).
 - El escudo anti-fuga aplica igual antes de cualquier llamada externa a la IA.
+
+## 📥 Descarga directa (sin ser programador)
+
+Los instaladores oficiales están en la página de **Releases** del repositorio:
+
+**GitHub → contaia-colombia → Releases (barra lateral derecha)**
+
+| Su sistema | Archivo a descargar |
+|---|---|
+| Windows | `ContaIA-Colombia-Setup-x.y.z.exe` (asistente de instalación) o el portable |
+| Linux | `.AppImage` (dar permiso de ejecución y doble clic) o `.deb` |
+| macOS | `.dmg` (arrastrar ContaIA a Aplicaciones) |
+
+Cada versión nueva se publica automáticamente: al crear un tag `vX.Y.Z` en la
+rama `desktop`, GitHub construye y adjunta los instaladores de los tres
+sistemas — no hay que compilar nada localmente.
