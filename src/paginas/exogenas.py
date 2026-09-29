@@ -55,7 +55,10 @@ def pagina_exogenas():
 
     informe = validar_exogenas(df, formato)
 
-    if informe["estado"] == "LISTO":
+    if informe.get("parece_no_ser_exogenas"):
+        st.error("Este archivo no parece ser un formato de exógenas. Verifique que exportó el reporte correcto desde su software contable.")
+    elif informe["estado"] == "LISTO":
+
         st.success(f"✅ **{informe['estado']}** — El archivo contiene las columnas mínimas del formato {formato}.")
     else:
         st.warning(f"⚠️ **{informe['estado']}** — Faltan columnas respecto al formato {formato}.")

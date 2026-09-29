@@ -126,6 +126,10 @@ def validar_exogenas(df, formato: str = "1003") -> dict:
         advertencias.append("El archivo no contiene filas de datos.")
 
     estado = "LISTO" if not faltantes else "CON OBSERVACIONES"
+    parece_no_ser_exogenas = False
+    if config["columnas_minimas"]:
+        parece_no_ser_exogenas = (len(encontradas) / len(config["columnas_minimas"])) < 0.3
+
     return {
         "formato": formato,
         "nombre_formato": config["nombre"],
@@ -134,4 +138,5 @@ def validar_exogenas(df, formato: str = "1003") -> dict:
         "columnas_faltantes": faltantes,
         "advertencias": advertencias,
         "estado": estado,
+        "parece_no_ser_exogenas": parece_no_ser_exogenas,
     }
