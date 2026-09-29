@@ -151,6 +151,12 @@ _PATRONES = [
         "Direcciones IP que podrían identificar equipos.",
         _mascara_total,
     ),
+    (
+        "Posible documento de identidad",
+        re.compile(r"\b\d{8,10}\b"),
+        "Números largos sin etiqueta que podrían ser cédulas o NITs.",
+        _mascara_digitos,
+    ),
 ]
 
 
